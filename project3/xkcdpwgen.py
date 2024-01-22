@@ -1,0 +1,69 @@
+import random
+import sys
+import getopt
+
+wordCount = 4
+capsCount = 0
+numsCount = 0
+symbolsCount = 0
+
+options, arguments = getopt.getopt(sys.argv[1:], "hw:c:n:s:", ["help", "words=", "caps=", "nums=",
+                                                               "symbols="])
+
+for arg, input in options:
+    if arg == "-h" or arg == "--help":
+        print('''usage: xkcdpwgen [-h] [-w WORDS] [-c CAPS] [-n NUMS] [-s SYMBOLS]
+    Generate a secure, memorable password using the XKCD method
+
+    optional arguments:
+    -h, --help               show this help message and exit
+    -w WORDS, --words WORDS  include WORDS words in the password (default=4)
+    -c CAPS, --caps CAPS     capitalize the first letter of CAPS random words
+    -n NUMS, --nums NUMS
+                             insert NUMS random nums in the password
+                             (default=0)
+    -s SYMBOLS, --symbols SYMBOLS
+                             insert SYMBOLS random symbols in the password
+                             (default=0)''')
+
+    elif arg == "-w" or arg == "--words":
+        wordCount = int(input)
+    elif arg == "-c" or arg == "--caps":
+        capsCount = int(input)
+    elif arg == "-n" or arg == "--nums":
+        numsCount = int(input)
+    elif arg == "-s" or arg == "--symbols":
+        symbolsCount = int(input)
+
+
+def gen_password(words, caps, nums, symbols):
+    with open('words.txt', 'r') as f:
+        wordlist = [word.strip() for word in f.readlines()]
+
+    pass_words = random.choices(wordlist, k=words)
+    if caps:
+        pass_words = [word.capitalize() for word in pass_words]
+    password = ''.join(pass_words)
+
+    if nums > 0:
+        for _ in range(nums):
+            pos = random.randint(0, len(password))
+            password = password[:pos] + str(random.randint(0, 9)) + password[pos:]
+
+    if symbols > 0:
+        symbol_list = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "<", ",", ">", ".", "?",
+                       "/", ":", ";",
+                       "'", "~"]
+        for _ in range(symbols):
+            pos = random.randint(0, len(password))
+            password = password[:pos] + random.choice(symbol_list) + password[pos:]
+    return password
+
+
+def main():
+    password = gen_password(wordCount, capsCount, numsCount, symbolsCount)
+    print(password)
+
+
+if __name__ == '__main__':
+    main()
